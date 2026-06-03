@@ -150,7 +150,8 @@
 .button:disabled,
 .secondaryButton:disabled,
 .dangerButton:disabled,
-.copyButton:disabled {
+.copyButton:disabled,
+.iconButton:disabled {
   opacity: 0.58;
 }
 
@@ -191,6 +192,162 @@
   line-height: 1.6;
 }
 
+.workspace {
+  display: grid;
+  grid-template-columns: minmax(250px, 0.36fr) minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.appRail,
+.appWorkspace {
+  display: grid;
+  gap: 16px;
+}
+
+.appRail {
+  position: sticky;
+  top: 82px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel);
+  padding: 14px;
+  box-shadow: var(--shadow);
+}
+
+.appWorkspace {
+  min-width: 0;
+}
+
+.appHeader {
+  display: flex;
+  min-width: 0;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel);
+  padding: 16px 18px;
+  box-shadow: var(--shadow);
+}
+
+.appHeader h2 {
+  margin: 2px 0 0;
+  font-size: 24px;
+  line-height: 1.2;
+}
+
+.originList {
+  display: flex;
+  max-width: 460px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.originList span {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--panel-soft);
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 5px 9px;
+}
+
+.appList {
+  display: grid;
+  gap: 8px;
+}
+
+.appButton {
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--foreground);
+  padding: 9px;
+  text-align: left;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease;
+}
+
+.appButton:hover,
+.appButtonActive {
+  border-color: #b7ddd7;
+  background: #ecfdf9;
+}
+
+.appInitial {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  border-radius: 8px;
+  background: #111827;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.appButtonText {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+}
+
+.appButtonText strong,
+.appButtonText span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.appButtonText strong {
+  font-size: 13px;
+}
+
+.appButtonText span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.toolCount {
+  display: grid;
+  min-width: 24px;
+  height: 24px;
+  place-items: center;
+  border-radius: 999px;
+  background: #e2e8f0;
+  color: #334155;
+  font-size: 11px;
+  font-weight: 850;
+}
+
+.iconButton {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #ffffff;
+  color: #334155;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease;
+}
+
+.iconButton:hover {
+  border-color: #b9c5d6;
+  background: #f8fafc;
+}
+
 .grid {
   display: grid;
   grid-template-columns: minmax(320px, 0.92fr) minmax(0, 1.35fr);
@@ -214,6 +371,13 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 14px;
+}
+
+.panelActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
 }
 
 .panelTitle {
@@ -264,6 +428,36 @@
 }
 
 .field input:focus {
+  border-color: #14b8a6;
+  box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.18);
+}
+
+.compactField {
+  display: grid;
+  gap: 7px;
+}
+
+.compactField span {
+  color: #334155;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.compactField textarea {
+  min-height: 74px;
+  resize: vertical;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #ffffff;
+  color: var(--foreground);
+  font: inherit;
+  font-size: 13px;
+  line-height: 1.5;
+  outline: none;
+  padding: 10px 12px;
+}
+
+.compactField textarea:focus {
   border-color: #14b8a6;
   box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.18);
 }
@@ -400,6 +594,126 @@
   font-size: 12px;
 }
 
+.segmented {
+  display: inline-flex;
+  min-height: 38px;
+  align-items: center;
+  gap: 2px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 3px;
+}
+
+.segmented button {
+  min-height: 30px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--muted);
+  padding: 0 9px;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: capitalize;
+}
+
+.segmented button:hover,
+.segmentActive {
+  background: #ecfdf9 !important;
+  color: #0f766e !important;
+}
+
+.requestList {
+  display: grid;
+  gap: 12px;
+}
+
+.requestRow {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) auto;
+  gap: 13px;
+  align-items: start;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel-soft);
+  padding: 14px;
+}
+
+.requestAvatar {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border-radius: 999px;
+  background: #111827;
+  color: #ffffff;
+  font-weight: 850;
+}
+
+.requestMain {
+  display: grid;
+  min-width: 0;
+  gap: 10px;
+}
+
+.requestHeader {
+  display: flex;
+  min-width: 0;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.requestHeader div {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+}
+
+.requestHeader strong,
+.requestHeader span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.requestHeader strong {
+  font-size: 15px;
+}
+
+.requestHeader div span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.requestMessage {
+  margin: 0;
+  color: #334155;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.requestLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.requestLinks a {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: #ffffff;
+  color: #0f766e;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 5px 9px;
+  text-decoration: none;
+}
+
+.requestActions {
+  display: grid;
+  gap: 8px;
+}
+
 .empty {
   display: grid;
   min-height: 180px;
@@ -469,8 +783,26 @@
 }
 
 @media (max-width: 860px) {
+  .workspace,
   .grid,
   .splitFields {
+    grid-template-columns: 1fr;
+  }
+
+  .appRail {
+    position: static;
+  }
+
+  .appHeader {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .originList {
+    justify-content: flex-start;
+  }
+
+  .requestRow {
     grid-template-columns: 1fr;
   }
 
@@ -510,6 +842,23 @@
     align-items: stretch;
     grid-template-columns: 1fr;
     flex-direction: column;
+  }
+
+  .panelActions {
+    justify-content: stretch;
+  }
+
+  .requestActions {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .segmented,
+  .panelActions .secondaryButton {
+    width: 100%;
+  }
+
+  .segmented {
+    justify-content: space-between;
   }
 
   .copyButton,

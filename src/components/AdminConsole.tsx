@@ -144,11 +144,13 @@ export function AdminConsole() {
       const profile = await fetchAdminProfile();
       if (!profile) {
         setSession({ status: "signed-out" });
-        return;
+        return null;
       }
       setSession({ profile, status: "ready" });
+      return profile;
     } catch {
       setSession({ status: "signed-out" });
+      return null;
     }
   }, []);
 
@@ -161,20 +163,17 @@ export function AdminConsole() {
 
       try {
         await syncAdminSession(await user.getIdToken(true));
-        await refreshProfile();
+        const profile = await refreshProfile();
+        if (profile?.roles.some(role => role.toLowerCase() === "admin")) {
+          await loadKeys();
+        }
       } catch {
         setSession({ status: "signed-out" });
       }
     });
 
     return () => unsubscribe();
-  }, [refreshProfile]);
-
-  useEffect(() => {
-    if (session.status === "ready" && isAdmin) {
-      void loadKeys();
-    }
-  }, [isAdmin, loadKeys, session.status]);
+  }, [loadKeys, refreshProfile]);
 
   const handleSignIn = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -185,7 +184,10 @@ export function AdminConsole() {
     try {
       const credential = await signInWithEmailAndPassword(auth, email, password);
       await syncAdminSession(await credential.user.getIdToken(true));
-      await refreshProfile();
+      const profile = await refreshProfile();
+      if (profile?.roles.some(role => role.toLowerCase() === "admin")) {
+        await loadKeys();
+      }
       setNotice("Admin session ready.");
     } catch (caughtError) {
       setError(loginError(caughtError));

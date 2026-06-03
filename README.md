@@ -2,6 +2,12 @@
 
 CheFu Admin is the internal operations console for admin-only workflows.
 
+Production host:
+
+```txt
+https://internal.chefuinc.com
+```
+
 ## Local Environment
 
 Create `admin/.env.local`:
@@ -21,6 +27,15 @@ The backend must allow the admin app origin. Local development uses:
 ```txt
 http://localhost:3004
 ```
+
+Production uses:
+
+```txt
+https://internal.chefuinc.com
+```
+
+For shared CheFu cookies in production, the backend should keep
+`AUTH_COOKIE_DOMAIN=.chefuinc.com`.
 
 ## Development
 

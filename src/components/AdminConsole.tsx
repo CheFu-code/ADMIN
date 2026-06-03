@@ -14,7 +14,7 @@ import {
   UserRound,
 } from "lucide-react";
 import type { FormEvent } from "react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { accountLoginUrl, accountLogoutUrl, apiUrl, readApiError } from "@/lib/api";
 import { fetchAdminProfile, type AdminProfile } from "@/lib/session";
 import styles from "./AdminConsole.module.css";
@@ -47,6 +47,10 @@ type SessionState =
   | { profile: AdminProfile; status: "ready" }
   | { status: "signed-out" };
 
+function hasAdminRole(roles: string[]) {
+  return roles.some(role => role.trim().toLowerCase() === "admin");
+}
+
 function formatDate(value: string | null) {
   if (!value) return "No expiry";
   return new Intl.DateTimeFormat(undefined, {
@@ -67,12 +71,7 @@ export function AdminConsole() {
   const [isCreatingKey, setIsCreatingKey] = useState(false);
   const [revokingKeyId, setRevokingKeyId] = useState("");
 
-  const isAdmin = useMemo(
-    () =>
-      session.status === "ready" &&
-      session.profile.roles.some(role => role.toLowerCase() === "admin"),
-    [session],
-  );
+  const isAdmin = session.status === "ready";
 
   const loadKeys = useCallback(async () => {
     setError("");
@@ -112,6 +111,15 @@ export function AdminConsole() {
         setSession({ status: "signed-out" });
         return null;
       }
+
+      if (!hasAdminRole(profile.roles)) {
+        setSession({ status: "signed-out" });
+        setKeys([]);
+        setCreatedKey(null);
+        window.location.assign(accountLogoutUrl(window.location.origin));
+        return null;
+      }
+
       setSession({ profile, status: "ready" });
       return profile;
     } catch {
@@ -127,7 +135,7 @@ export function AdminConsole() {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     refreshProfile().then(profile => {
       if (!active) return;
-      if (profile?.roles.some(role => role.toLowerCase() === "admin")) {
+      if (profile) {
         void loadKeys();
       }
     });
@@ -307,15 +315,6 @@ export function AdminConsole() {
             employee or workspace owner.
           </p>
         </section>
-
-        {!isAdmin ? (
-          <div className={styles.alert}>
-            <AlertCircle size={18} />
-            <span>
-              This CheFu Account is signed in, but it does not have the admin role.
-            </span>
-          </div>
-        ) : null}
 
         {error ? (
           <div className={styles.alert}>

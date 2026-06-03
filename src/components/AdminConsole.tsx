@@ -68,6 +68,7 @@ type MuzaloArtistRequest = {
   reviewNote: string;
   reviewedAt: string | null;
   reviewedBy: string;
+  spotifyArtistId: string;
   spotifyUrl: string;
   status: Exclude<ArtistRequestStatus, "all">;
   uid: string;
@@ -838,6 +839,9 @@ export function AdminConsole() {
                     </span>
                     {request.reviewedAt ? (
                       <span>Reviewed {formatDate(request.reviewedAt)}</span>
+                    ) : null}
+                    {request.spotifyArtistId ? (
+                      <span>Spotify ID {request.spotifyArtistId}</span>
                     ) : null}
                   </div>
 

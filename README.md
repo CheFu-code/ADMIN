@@ -14,12 +14,7 @@ Create `admin/.env.local`:
 
 ```bash
 NEXT_PUBLIC_API_BASE_URL=http://localhost:4000
-NEXT_PUBLIC_FIREBASE_API_KEY=
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=
-NEXT_PUBLIC_FIREBASE_APP_ID=
+NEXT_PUBLIC_ACCOUNT_APP_URL=http://localhost:3000
 ```
 
 The backend must allow the admin app origin. Local development uses:
@@ -36,6 +31,12 @@ https://internal.chefuinc.com
 
 For shared CheFu cookies in production, the backend should keep
 `AUTH_COOKIE_DOMAIN=.chefuinc.com`.
+
+Admin sign-in is handled by CheFu Account. The Admin app redirects to:
+
+```txt
+{NEXT_PUBLIC_ACCOUNT_APP_URL}/login?app=admin&returnTo=...
+```
 
 ## Development
 

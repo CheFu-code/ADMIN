@@ -13,16 +13,12 @@ import {
   Trash2,
   UserRound,
 } from "lucide-react";
-import { FirebaseError } from "firebase/app";
-import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from "firebase/auth";
 import type { FormEvent } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { apiUrl, readApiError } from "@/lib/api";
-import { auth } from "@/lib/firebase";
+import { accountLoginUrl, apiUrl, readApiError } from "@/lib/api";
 import {
   clearAdminSession,
   fetchAdminProfile,
-  syncAdminSession,
   type AdminProfile,
 } from "@/lib/session";
 import styles from "./AdminConsole.module.css";
@@ -63,40 +59,14 @@ function formatDate(value: string | null) {
   }).format(new Date(value));
 }
 
-function loginError(error: unknown) {
-  if (!(error instanceof FirebaseError)) {
-    return error instanceof Error ? error.message : "Unable to sign in.";
-  }
-
-  switch (error.code) {
-    case "auth/invalid-email":
-      return "Invalid email format.";
-    case "auth/invalid-credential":
-    case "auth/user-not-found":
-    case "auth/wrong-password":
-      return "Invalid email or password.";
-    case "auth/user-disabled":
-      return "This account has been disabled.";
-    case "auth/too-many-requests":
-      return "Too many attempts. Try again later.";
-    case "auth/invalid-api-key":
-      return "Firebase API key is missing or invalid.";
-    default:
-      return "Unable to sign in.";
-  }
-}
-
 export function AdminConsole() {
   const [session, setSession] = useState<SessionState>({ status: "checking" });
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [label, setLabel] = useState("");
   const [expiresAt, setExpiresAt] = useState("");
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [createdKey, setCreatedKey] = useState<CreatedFlowKey | null>(null);
   const [keys, setKeys] = useState<FlowAccessKeySummary[]>([]);
-  const [isSigningIn, setIsSigningIn] = useState(false);
   const [isLoadingKeys, setIsLoadingKeys] = useState(false);
   const [isCreatingKey, setIsCreatingKey] = useState(false);
   const [revokingKeyId, setRevokingKeyId] = useState("");
@@ -155,52 +125,28 @@ export function AdminConsole() {
   }, []);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async user => {
-      if (!user) {
-        setSession({ status: "signed-out" });
-        return;
-      }
+    let active = true;
 
-      try {
-        await syncAdminSession(await user.getIdToken(true));
-        const profile = await refreshProfile();
-        if (profile?.roles.some(role => role.toLowerCase() === "admin")) {
-          await loadKeys();
-        }
-      } catch {
-        setSession({ status: "signed-out" });
+    refreshProfile().then(profile => {
+      if (!active) return;
+      if (profile?.roles.some(role => role.toLowerCase() === "admin")) {
+        void loadKeys();
       }
     });
 
-    return () => unsubscribe();
+    return () => {
+      active = false;
+    };
   }, [loadKeys, refreshProfile]);
 
-  const handleSignIn = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setError("");
-    setNotice("");
-    setIsSigningIn(true);
-
-    try {
-      const credential = await signInWithEmailAndPassword(auth, email, password);
-      await syncAdminSession(await credential.user.getIdToken(true));
-      const profile = await refreshProfile();
-      if (profile?.roles.some(role => role.toLowerCase() === "admin")) {
-        await loadKeys();
-      }
-      setNotice("Admin session ready.");
-    } catch (caughtError) {
-      setError(loginError(caughtError));
-    } finally {
-      setIsSigningIn(false);
-    }
+  const handleSignIn = () => {
+    window.location.assign(accountLoginUrl(window.location.href));
   };
 
   const handleSignOut = async () => {
     setError("");
     setNotice("");
     await clearAdminSession();
-    await signOut(auth);
     setSession({ status: "signed-out" });
     setKeys([]);
     setCreatedKey(null);
@@ -301,7 +247,7 @@ export function AdminConsole() {
   if (session.status === "signed-out") {
     return (
       <main className={styles.loginShell}>
-        <section className={styles.loginPanel} aria-label="Admin sign in">
+        <section className={styles.loginPanel} aria-label="Admin sign in required">
           <div className={styles.loginHeader}>
             <span className={styles.brandMark} aria-hidden="true">
               <ShieldCheck size={22} />
@@ -309,56 +255,21 @@ export function AdminConsole() {
             <div>
               <span className={styles.eyebrow}>CheFu Admin</span>
               <h1>Admin sign in</h1>
-              <p>Use a CheFu Account with the admin role.</p>
+              <p>Continue with a CheFu Account that has the admin role.</p>
             </div>
           </div>
 
-          <form className={styles.form} onSubmit={handleSignIn}>
-            <label className={styles.field}>
-              <span>Email</span>
-              <input
-                autoComplete="email"
-                autoFocus
-                disabled={isSigningIn}
-                onChange={event => setEmail(event.target.value)}
-                placeholder="admin@chefuinc.com"
-                type="email"
-                value={email}
-              />
-            </label>
+          {error ? (
+            <div className={styles.alert}>
+              <AlertCircle size={16} />
+              <span>{error}</span>
+            </div>
+          ) : null}
 
-            <label className={styles.field}>
-              <span>Password</span>
-              <input
-                autoComplete="current-password"
-                disabled={isSigningIn}
-                onChange={event => setPassword(event.target.value)}
-                placeholder="Your password"
-                type="password"
-                value={password}
-              />
-            </label>
-
-            {error ? (
-              <div className={styles.alert}>
-                <AlertCircle size={16} />
-                <span>{error}</span>
-              </div>
-            ) : null}
-
-            <button
-              className={styles.button}
-              disabled={isSigningIn || !email || !password}
-              type="submit"
-            >
-              {isSigningIn ? (
-                <Loader2 className={styles.spin} size={16} />
-              ) : (
-                <LockKeyhole size={16} />
-              )}
-              {isSigningIn ? "Signing in..." : "Open admin console"}
-            </button>
-          </form>
+          <button className={styles.button} onClick={handleSignIn} type="button">
+            <LockKeyhole size={16} />
+            Continue with CheFu Account
+          </button>
         </section>
       </main>
     );

@@ -284,8 +284,17 @@ export function AdminConsole() {
 
   useEffect(() => {
     if (!isAdmin) return;
-    if (activeAppId === "flow") void loadKeys();
-    if (activeAppId === "muzalo") void loadArtistRequests();
+    let active = true;
+
+    queueMicrotask(() => {
+      if (!active) return;
+      if (activeAppId === "flow") void loadKeys();
+      if (activeAppId === "muzalo") void loadArtistRequests();
+    });
+
+    return () => {
+      active = false;
+    };
   }, [activeAppId, isAdmin, loadArtistRequests, loadKeys]);
 
   const handleSignIn = () => {

@@ -15,12 +15,8 @@ import {
 } from "lucide-react";
 import type { FormEvent } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { accountLoginUrl, apiUrl, readApiError } from "@/lib/api";
-import {
-  clearAdminSession,
-  fetchAdminProfile,
-  type AdminProfile,
-} from "@/lib/session";
+import { accountLoginUrl, accountLogoutUrl, apiUrl, readApiError } from "@/lib/api";
+import { fetchAdminProfile, type AdminProfile } from "@/lib/session";
 import styles from "./AdminConsole.module.css";
 
 type FlowKeyStatus = "active" | "expired" | "revoked";
@@ -127,6 +123,8 @@ export function AdminConsole() {
   useEffect(() => {
     let active = true;
 
+    // This effect synchronizes the UI with the backend session cookie.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     refreshProfile().then(profile => {
       if (!active) return;
       if (profile?.roles.some(role => role.toLowerCase() === "admin")) {
@@ -143,13 +141,13 @@ export function AdminConsole() {
     window.location.assign(accountLoginUrl(window.location.href));
   };
 
-  const handleSignOut = async () => {
+  const handleSignOut = () => {
     setError("");
     setNotice("");
-    await clearAdminSession();
     setSession({ status: "signed-out" });
     setKeys([]);
     setCreatedKey(null);
+    window.location.assign(accountLogoutUrl(window.location.origin));
   };
 
   const createKey = async (event: FormEvent<HTMLFormElement>) => {

@@ -29,3 +29,11 @@ export function accountLoginUrl(returnTo: string) {
 
   return loginUrl.toString();
 }
+
+export function accountLogoutUrl(returnTo: string) {
+  const logoutUrl = new URL("/logout", ACCOUNT_APP_URL);
+  logoutUrl.searchParams.set("app", CHEFU_ADMIN_APP_ID);
+  logoutUrl.searchParams.set("returnTo", returnTo);
+
+  return logoutUrl.toString();
+}
